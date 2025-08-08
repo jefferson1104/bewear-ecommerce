@@ -1,6 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 import {
@@ -11,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { authClient } from "@/lib/auth-client";
 
 import { Button } from "./ui/button";
 import {
@@ -27,11 +30,11 @@ const formSchema = z
   .object({
     name: z.string().trim().min(4, "Invalid Name"),
     email: z.email("Invalid email address").trim().min(1, "Email is required"),
-    password: z.string().trim().min(6, "Invalid Password"),
+    password: z.string().trim().min(8, "Invalid Password"),
     passwordConfirmation: z
       .string()
       .trim()
-      .min(6, "Invalid Password Confirmation"),
+      .min(8, "Invalid Password Confirmation"),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
     message: "Passwords do not match",
@@ -42,6 +45,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const SignUpForm = () => {
   // Hooks
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,9 +57,32 @@ export const SignUpForm = () => {
   });
 
   // Methods
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted with data:", data);
-    // Handle form submission logic here
+  const onSubmit = async (values: FormValues) => {
+    await authClient.signUp.email({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      fetchOptions: {
+        onSuccess: () => {
+          form.reset();
+          toast.success("Account created successfully!");
+          router.push("/");
+        },
+        onError: (error) => {
+          if (error.error.code === "USER_ALREADY_EXISTS") {
+            toast.error("User already exists. Please log in.");
+
+            form.setError("email", {
+              message: "Email already registered.",
+            });
+
+            return;
+          }
+
+          toast.error(error.error.message);
+        },
+      },
+    });
   };
 
   // Renders
