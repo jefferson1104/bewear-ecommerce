@@ -1,6 +1,8 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 import {
@@ -11,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { authClient } from "@/lib/auth-client";
 
 import { Button } from "./ui/button";
 import {
@@ -32,6 +35,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export const SignInForm = () => {
   // Hooks
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,9 +45,41 @@ export const SignInForm = () => {
   });
 
   // Methods
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted with data:", data);
-    // Handle form submission logic here
+  const onSubmit = async (formData: FormValues) => {
+    await authClient.signIn.email({
+      email: formData.email,
+      password: formData.password,
+      fetchOptions: {
+        onSuccess: () => {
+          form.reset();
+          toast.success("Signed in successfully!");
+          router.push("/");
+        },
+        onError: (errorContext) => {
+          console.error("SignIn Error:", errorContext);
+
+          if (errorContext.error.code === "INVALID_EMAIL_OR_PASSWORD") {
+            toast.error("Invalid email or password. Please try again.");
+
+            form.setError("email", {
+              type: "manual",
+              message: "Invalid email or password.",
+            });
+
+            form.setError("password", {
+              type: "manual",
+              message: "Invalid email or password.",
+            });
+
+            return;
+          }
+
+          toast.error(
+            errorContext.error.message || "An error occurred while signing in.",
+          );
+        },
+      },
+    });
   };
 
   // Renders

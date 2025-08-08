@@ -57,19 +57,21 @@ export const SignUpForm = () => {
   });
 
   // Methods
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (formData: FormValues) => {
     await authClient.signUp.email({
-      name: values.name,
-      email: values.email,
-      password: values.password,
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
       fetchOptions: {
         onSuccess: () => {
           form.reset();
           toast.success("Account created successfully!");
           router.push("/");
         },
-        onError: (error) => {
-          if (error.error.code === "USER_ALREADY_EXISTS") {
+        onError: (errorContext) => {
+          console.error("SignUp Error:", errorContext);
+
+          if (errorContext.error.code === "USER_ALREADY_EXISTS") {
             toast.error("User already exists. Please log in.");
 
             form.setError("email", {
@@ -79,7 +81,9 @@ export const SignUpForm = () => {
             return;
           }
 
-          toast.error(error.error.message);
+          toast.error(
+            errorContext.error.message || "An error occurred while signing up.",
+          );
         },
       },
     });
