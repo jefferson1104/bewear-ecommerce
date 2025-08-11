@@ -1,7 +1,7 @@
 import Image from "next/image";
 
-import { Header } from "@/components/commons/header";
-import { ProductList } from "@/components/commons/product-list";
+import { Header } from "@/components//header";
+import { ProductList } from "@/components//product-list";
 import { db } from "@/db";
 
 export default async function HomePage() {

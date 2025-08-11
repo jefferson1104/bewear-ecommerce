@@ -1,4 +1,4 @@
-import { Header } from "@/components/commons/header";
+import { Header } from "@/components//header";
 import { SignInForm } from "@/components/sign-in-form";
 import { SignUpForm } from "@/components/sign-up-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
