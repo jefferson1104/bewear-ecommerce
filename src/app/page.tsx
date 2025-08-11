@@ -5,6 +5,7 @@ import { Header } from "@/components//header";
 import { ProductList } from "@/components//product-list";
 import { CategorySelector } from "@/components/category-selector";
 import { Footer } from "@/components/footer";
+import { PartnerBrands } from "@/components/partner-brands";
 import { db } from "@/db";
 import { productsTable } from "@/db/schema";
 
@@ -40,6 +41,8 @@ export default async function HomePage() {
           className="h-auto w-full"
         />
       </div>
+
+      <PartnerBrands />
 
       <ProductList title="Best sellers" products={products} />
 
