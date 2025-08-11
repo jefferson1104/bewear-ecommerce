@@ -84,7 +84,7 @@ export const SignInForm = () => {
 
   // Renders
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Sign In</CardTitle>
         <CardDescription>

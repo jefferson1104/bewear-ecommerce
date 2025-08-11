@@ -91,7 +91,7 @@ export const SignUpForm = () => {
 
   // Renders
   return (
-    <Card>
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Sign Up</CardTitle>
         <CardDescription>
