@@ -2,10 +2,12 @@ import Image from "next/image";
 
 import { Header } from "@/components//header";
 import { ProductList } from "@/components//product-list";
+import { CategorySelector } from "@/components/category-selector";
 import { db } from "@/db";
 
 export default async function HomePage() {
   // Constants
+  const categories = await db.query.categoriesTable.findMany();
   const products = await db.query.productsTable.findMany({
     with: {
       variants: true,
@@ -30,6 +32,10 @@ export default async function HomePage() {
         </div>
 
         <ProductList title="Mais vendidos" products={products} />
+
+        <div className="px-5">
+          <CategorySelector categories={categories} />
+        </div>
 
         <div className="px-5">
           <Image
