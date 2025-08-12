@@ -1,12 +1,15 @@
 "use client";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { parseAsInteger, useQueryState } from "nuqs";
 
 import { Button } from "./ui/button";
 
 export function QuantitySelector() {
   // States
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useQueryState(
+    "quantity",
+    parseAsInteger.withDefault(1),
+  );
 
   // Methods
   const handleDecreaseQuantity = () => {

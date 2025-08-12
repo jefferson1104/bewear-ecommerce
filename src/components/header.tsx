@@ -19,8 +19,6 @@ export function Header() {
   // Constants
   const { data: session } = authClient.useSession();
 
-  console.log("session", session);
-
   // Renders
   return (
     <header className="flex items-center justify-between p-5">
