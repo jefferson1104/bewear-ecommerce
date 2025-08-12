@@ -179,9 +179,10 @@ export const cartsTable = pgTable("carts", {
   userId: text("user_id")
     .references(() => usersTable.id, { onDelete: "cascade" })
     .notNull(),
-  shippingAddressId: uuid("shipping_address_id")
-    .references(() => shippinAddressesTable.id, { onDelete: "set null" })
-    .notNull(),
+  shippingAddressId: uuid("shipping_address_id").references(
+    () => shippinAddressesTable.id,
+    { onDelete: "set null" },
+  ),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
