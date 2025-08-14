@@ -4,8 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "path";
 
+import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { ProductActions } from "@/components/product-actions";
 import { ProductList } from "@/components/product-list";
 import { QuantitySelector } from "@/components/quantity-selector";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,8 @@ interface IProductVariantPageProps {
 export default async function ProductVariantPage({
   params,
 }: IProductVariantPageProps) {
+  // Hooks
+
   // Constantes
   const { slug } = await params;
   const productVariant = await db.query.productVariantsTable.findFirst({
@@ -81,19 +85,7 @@ export default async function ProductVariantPage({
           </h3>
         </div>
 
-        <div className="px-5">
-          <QuantitySelector />
-        </div>
-
-        <div className="flex flex-col space-y-4 px-5">
-          <Button className="rounded-full" size="lg" variant="outline">
-            Add to cart
-          </Button>
-
-          <Button className="rounded-full" size="lg">
-            Buy now
-          </Button>
-        </div>
+        <ProductActions productVariantId={productVariant.id} />
 
         <div className="px-5">
           <p className="text-sm">{productVariant.product.description}</p>

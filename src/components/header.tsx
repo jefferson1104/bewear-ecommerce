@@ -4,6 +4,7 @@ import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Cart } from "@/components/cart";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +27,7 @@ export function Header() {
         <Image src="/images/logo.svg" alt="Bewear" width={100} height={26.14} />
       </Link>
 
-      <div className="flex items-center">
+      <div className="flex items-center gap-3">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon">
@@ -85,6 +86,8 @@ export function Header() {
             </div>
           </SheetContent>
         </Sheet>
+
+        <Cart />
       </div>
     </header>
   );
