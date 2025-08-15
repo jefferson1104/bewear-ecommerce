@@ -5,6 +5,7 @@ import Image from "next/image";
 
 import { getCart } from "@/actions/get-cart";
 
+import { CartItem } from "./cart-item";
 import { Button } from "./ui/button";
 import {
   Sheet,
@@ -35,7 +36,7 @@ export function Cart() {
           <SheetTitle>Cart</SheetTitle>
         </SheetHeader>
 
-        <div>
+        <div className="space-y-4 px-5">
           {cartIsLoading && (
             <div className="flex items-center justify-center gap-2">
               <LoaderCircleIcon className="animate-spin" />
@@ -44,19 +45,15 @@ export function Cart() {
           )}
 
           {cart?.items.map((item) => (
-            <div key={item.id}>
-              <Image
-                src={item.productVariant.imageUrls[0]}
-                alt={item.productVariant.product.name}
-                width={100}
-                height={100}
-                className="rounded-3xl"
-              />
-
-              <div>
-                <h3>{item.productVariant.product.name}</h3>
-              </div>
-            </div>
+            <CartItem
+              key={item.id}
+              id={item.id}
+              productName={item.productVariant.product.name}
+              productVariantName={item.productVariant.name}
+              productVariantImageUrl={item.productVariant.imageUrls[0]}
+              productVariantPriceInCents={item.productVariant.priceInCents}
+              quantity={item.quantity}
+            />
           ))}
         </div>
       </SheetContent>
