@@ -33,7 +33,7 @@ export function Cart() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent>
+      <SheetContent className="w-[320px] sm:w-[540px]">
         <SheetHeader>
           <SheetTitle>Cart</SheetTitle>
         </SheetHeader>
