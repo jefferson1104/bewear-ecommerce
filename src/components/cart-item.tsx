@@ -4,8 +4,9 @@ import Image from "next/image";
 import { toast } from "sonner";
 
 import { addProductToCart } from "@/actions/add-cart-product";
-import { decreaseCartProductQuantity } from "@/actions/decrease-cart-product-quantity";
-import { removeProductFromCart } from "@/actions/remove-cart-product";
+import { useDecreaseProductQuantity } from "@/hooks/mutations/use-decrease-product-quantity";
+import { useIncreaseProductQuantity } from "@/hooks/mutations/use-increase-product-quantity";
+import { useRemoveProduct } from "@/hooks/mutations/use-remove-product";
 import { formatCentsToCurrency } from "@/utils/currency";
 
 import { Button } from "./ui/button";
@@ -30,37 +31,19 @@ export function CartItem({
   quantity,
 }: ICartItemProps) {
   // Hooks
-  const queryClient = useQueryClient();
-  const removeProductFromCartMutation = useMutation({
-    mutationKey: ["remove-cart-product"],
-    mutationFn: () => removeProductFromCart({ cartItemId: id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-  });
-  const decreaseCartProductQuantityMutation = useMutation({
-    mutationKey: ["decrease-cart-product-quantity"],
-    mutationFn: () => decreaseCartProductQuantity({ cartItemId: id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-  });
-  const increaseCartProductQuantityMutation = useMutation({
-    mutationKey: ["increase-cart-product-quantity"],
-    mutationFn: () => addProductToCart({ productVariantId, quantity: 1 }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-  });
+  const removeProduct = useRemoveProduct(id);
+  const decreaseProductQuantity = useDecreaseProductQuantity(id);
+  const increaseProductQuantity = useIncreaseProductQuantity(productVariantId);
 
   // Constants
-  const isLoadingToChangeQuantity =
-    decreaseCartProductQuantityMutation.isPending ||
-    increaseCartProductQuantityMutation.isPending;
+  const isLoading =
+    decreaseProductQuantity.isPending ||
+    increaseProductQuantity.isPending ||
+    removeProduct.isPending;
 
   // Methods
   const handleDeleteProductFromCart = () => {
-    removeProductFromCartMutation.mutate(undefined, {
+    removeProduct.mutate(undefined, {
       onSuccess: () => {
         toast.success("Product removed from cart successfully");
       },
@@ -72,7 +55,7 @@ export function CartItem({
   };
 
   const handleDecreaseProductQuantity = () => {
-    decreaseCartProductQuantityMutation.mutate(undefined, {
+    decreaseProductQuantity.mutate(undefined, {
       onSuccess: () => {
         toast.success("Product quantity decreased successfully");
       },
@@ -84,7 +67,7 @@ export function CartItem({
   };
 
   const handleIncreaseProductQuantity = () => {
-    increaseCartProductQuantityMutation.mutate(undefined, {
+    increaseProductQuantity.mutate(undefined, {
       onSuccess: () => {
         toast.success("Product quantity increased successfully");
       },
@@ -118,12 +101,12 @@ export function CartItem({
               variant="ghost"
               className="h-4 w-4"
               onClick={handleDecreaseProductQuantity}
-              disabled={isLoadingToChangeQuantity}
+              disabled={isLoading}
             >
               <MinusIcon />
             </Button>
             <p className="text-xs font-medium">
-              {isLoadingToChangeQuantity ? (
+              {isLoading ? (
                 <Loader2Icon className="size-4 animate-spin" />
               ) : (
                 quantity
@@ -133,7 +116,7 @@ export function CartItem({
               variant="ghost"
               className="h-4 w-4"
               onClick={handleIncreaseProductQuantity}
-              disabled={isLoadingToChangeQuantity}
+              disabled={isLoading}
             >
               <PlusIcon />
             </Button>
@@ -146,9 +129,9 @@ export function CartItem({
           variant="outline"
           size="icon"
           onClick={handleDeleteProductFromCart}
-          disabled={removeProductFromCartMutation.isPending}
+          disabled={isLoading}
         >
-          {removeProductFromCartMutation.isPending ? (
+          {isLoading ? (
             <Loader2Icon className="mr-1 animate-spin" />
           ) : (
             <TrashIcon />
