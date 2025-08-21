@@ -9,6 +9,7 @@ import {
 import Image from "next/image";
 import { toast } from "sonner";
 
+import { decreaseCartProductQuantity } from "@/actions/decrease-cart-product-quantity";
 import { removeProductFromCart } from "@/actions/remove-cart-product";
 import { formatCentsToCurrency } from "@/utils/currency";
 
@@ -40,6 +41,17 @@ export function CartItem({
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
+  const decreaseCartProductQuantityMutation = useMutation({
+    mutationKey: ["decrease-cart-product-quantity"],
+    mutationFn: () => decreaseCartProductQuantity({ cartItemId: id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
+  // Constants
+  const isLoadingToChangeQuantity =
+    decreaseCartProductQuantityMutation.isPending;
 
   // Methods
   const handleDeleteProductFromCart = () => {
@@ -50,6 +62,18 @@ export function CartItem({
       onError: (error) => {
         console.error("Error removing product from cart:", error);
         toast.error("Failed to remove product from cart");
+      },
+    });
+  };
+
+  const handleDecreaseProductQuantity = () => {
+    decreaseCartProductQuantityMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Product quantity decreased successfully");
+      },
+      onError: (error) => {
+        console.error("Error decreasing product quantity:", error);
+        toast.error("Failed to decrease product quantity");
       },
     });
   };
@@ -76,15 +100,23 @@ export function CartItem({
             <Button
               variant="ghost"
               className="h-4 w-4"
-              // onClick={handleDecreaseQuantity}
+              onClick={handleDecreaseProductQuantity}
+              disabled={isLoadingToChangeQuantity}
             >
               <MinusIcon />
             </Button>
-            <p className="text-xs font-medium">{quantity}</p>
+            <p className="text-xs font-medium">
+              {isLoadingToChangeQuantity ? (
+                <Loader2Icon className="size-4 animate-spin" />
+              ) : (
+                quantity
+              )}
+            </p>
             <Button
               variant="ghost"
               className="h-4 w-4"
               // onClick={handleIncreaseQuantity}
+              disabled={isLoadingToChangeQuantity}
             >
               <PlusIcon />
             </Button>
