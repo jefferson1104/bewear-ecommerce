@@ -1,14 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Loader2Icon,
-  MinusIcon,
-  PlusIcon,
-  Trash,
-  TrashIcon,
-} from "lucide-react";
+import { Loader2Icon, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
+import { addProductToCart } from "@/actions/add-cart-product";
 import { decreaseCartProductQuantity } from "@/actions/decrease-cart-product-quantity";
 import { removeProductFromCart } from "@/actions/remove-cart-product";
 import { formatCentsToCurrency } from "@/utils/currency";
@@ -18,6 +13,7 @@ import { Button } from "./ui/button";
 interface ICartItemProps {
   id: string;
   productName: string;
+  productVariantId: string;
   productVariantName: string;
   productVariantImageUrl: string;
   productVariantPriceInCents: number;
@@ -27,6 +23,7 @@ interface ICartItemProps {
 export function CartItem({
   id,
   productName,
+  productVariantId,
   productVariantName,
   productVariantImageUrl,
   productVariantPriceInCents,
@@ -48,10 +45,18 @@ export function CartItem({
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
+  const increaseCartProductQuantityMutation = useMutation({
+    mutationKey: ["increase-cart-product-quantity"],
+    mutationFn: () => addProductToCart({ productVariantId, quantity: 1 }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
 
   // Constants
   const isLoadingToChangeQuantity =
-    decreaseCartProductQuantityMutation.isPending;
+    decreaseCartProductQuantityMutation.isPending ||
+    increaseCartProductQuantityMutation.isPending;
 
   // Methods
   const handleDeleteProductFromCart = () => {
@@ -74,6 +79,18 @@ export function CartItem({
       onError: (error) => {
         console.error("Error decreasing product quantity:", error);
         toast.error("Failed to decrease product quantity");
+      },
+    });
+  };
+
+  const handleIncreaseProductQuantity = () => {
+    increaseCartProductQuantityMutation.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Product quantity increased successfully");
+      },
+      onError: (error) => {
+        console.error("Error increasing product quantity:", error);
+        toast.error("Failed to increase product quantity");
       },
     });
   };
@@ -115,7 +132,7 @@ export function CartItem({
             <Button
               variant="ghost"
               className="h-4 w-4"
-              // onClick={handleIncreaseQuantity}
+              onClick={handleIncreaseProductQuantity}
               disabled={isLoadingToChangeQuantity}
             >
               <PlusIcon />
