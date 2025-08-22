@@ -21,6 +21,9 @@ export function Cart() {
   // Hooks
   const { data: cart, isPending: cartIsLoading } = useGetCart();
 
+  // Constants
+  const isCartEmpty = !cart || cart.items.length === 0;
+
   // Renders
   return (
     <Sheet>
@@ -46,20 +49,28 @@ export function Cart() {
                   </div>
                 )}
 
-                {cart?.items.map((item) => (
-                  <CartItem
-                    key={item.id}
-                    id={item.id}
-                    productName={item.productVariant.product.name}
-                    productVariantId={item.productVariant.id}
-                    productVariantName={item.productVariant.name}
-                    productVariantImageUrl={item.productVariant.imageUrls[0]}
-                    productVariantPriceInCents={
-                      item.productVariant.priceInCents
-                    }
-                    quantity={item.quantity}
-                  />
-                ))}
+                {!cartIsLoading && isCartEmpty && (
+                  <div className="flex items-center justify-center gap-2">
+                    <p className="text-sm font-semibold">Your cart is empty</p>
+                  </div>
+                )}
+
+                {!isCartEmpty &&
+                  !cartIsLoading &&
+                  cart.items.map((item) => (
+                    <CartItem
+                      key={item.id}
+                      id={item.id}
+                      productName={item.productVariant.product.name}
+                      productVariantId={item.productVariant.id}
+                      productVariantName={item.productVariant.name}
+                      productVariantImageUrl={item.productVariant.imageUrls[0]}
+                      productVariantPriceInCents={
+                        item.productVariant.priceInCents
+                      }
+                      quantity={item.quantity}
+                    />
+                  ))}
               </div>
             </ScrollArea>
           </div>
