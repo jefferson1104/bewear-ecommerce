@@ -1,9 +1,7 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2Icon, MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
-import { addProductToCart } from "@/actions/add-cart-product";
 import { useDecreaseProductQuantity } from "@/hooks/mutations/use-decrease-product-quantity";
 import { useIncreaseProductQuantity } from "@/hooks/mutations/use-increase-product-quantity";
 import { useRemoveProduct } from "@/hooks/mutations/use-remove-product";
