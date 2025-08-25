@@ -1,6 +1,7 @@
 "use client";
 
 import { LoaderCircleIcon, ShoppingBasketIcon } from "lucide-react";
+import Link from "next/link";
 
 import { useGetCart } from "@/hooks/queries/use-get-cart";
 import { formatCentsToCurrency } from "@/utils/currency";
@@ -97,7 +98,9 @@ export function Cart() {
                 <p>{formatCentsToCurrency(cart?.totalPriceInCents ?? 0)}</p>
               </div>
 
-              <Button className="mt-5 rounded-full">Checkout</Button>
+              <Button className="mt-5 rounded-full" asChild>
+                <Link href="/cart/identification">Checkout</Link>
+              </Button>
             </div>
           )}
         </div>
