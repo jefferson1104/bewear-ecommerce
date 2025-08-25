@@ -3,11 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { PatternFormat } from "react-number-format";
+import { NumberFormatBase, PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
 
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
+import { isValidUSZip, US_STATES, validatePhone } from "@/utils/address-utils";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -32,11 +33,7 @@ const addressFormSchema = z
     // Country and phone will be validated together
     country: z.enum(["US", "CA", "GB", "BR", "PT"]).default("US"),
     phone: z.string().trim().min(1, "Phone is required"),
-    zipCode: z
-      .string()
-      .trim()
-      .min(5, "ZIP code is required")
-      .max(10, "ZIP code is too long"),
+    zipCode: z.string().trim().min(5, "ZIP code is required"),
     address: z.string().trim().min(1, "Address is required"),
     number: z.string().trim().min(1, "Number is required"),
     complement: z.string().trim().optional(),
@@ -49,28 +46,22 @@ const addressFormSchema = z
       .max(2, "State must be 2 characters"),
   })
   .superRefine((values, ctx) => {
-    // Validate phone per selected country using digits-only string
-    const digits = values.phone.replace(/\D/g, "");
-
-    const rules: Record<string, { regex: RegExp; message: string }> = {
-      US: {
-        // +1 (AAA) NNN-NNNN => 1 + 10
-        regex: /^1\d{10}$/,
-        message: "Invalid US phone. Expected +1 (AAA) NNN-NNNN",
-      },
-      BR: {
-        // +55 (AA) #####-#### => 55 + 11
-        regex: /^55\d{11}$/,
-        message: "Invalid BR phone. Expected +55 (AA) #####-####",
-      },
-    };
-
-    const rule = rules[values.country];
-    if (!rule.regex.test(digits)) {
+    // Phone validation by country
+    const phoneError = validatePhone(values.country, values.phone);
+    if (phoneError) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["phone"],
-        message: rule.message,
+        message: phoneError,
+      });
+    }
+
+    // ZIP validation (US only)
+    if (values.country === "US" && !isValidUSZip(values.zipCode)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["zipCode"],
+        message: "Invalid ZIP code. Use 12345 or 12345-6789",
       });
     }
   });
@@ -232,7 +223,7 @@ export function Address() {
                     <FormItem>
                       <FormControl>
                         <Input
-                          className="placeholder:text-xs md:placeholder:text-sm"
+                          className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
                           type="email"
                           placeholder="Email"
                           {...field}
@@ -251,7 +242,7 @@ export function Address() {
                     <FormItem>
                       <FormControl>
                         <Input
-                          className="placeholder:text-xs md:placeholder:text-sm"
+                          className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
                           placeholder="Full name"
                           {...field}
                         />
@@ -265,20 +256,32 @@ export function Address() {
                 <FormField
                   control={form.control}
                   name="zipCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <PatternFormat
-                          className="placeholder:text-xs md:placeholder:text-sm"
-                          customInput={Input}
-                          format="#####-####"
-                          placeholder="ZIP Code"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormControl>
+                          <NumberFormatBase
+                            className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
+                            customInput={Input}
+                            value={field.value}
+                            onValueChange={(vals) =>
+                              field.onChange(vals.formattedValue)
+                            }
+                            format={(val) => {
+                              const digits = (val || "")
+                                .replace(/\D/g, "")
+                                .slice(0, 9);
+                              if (digits.length <= 5) return digits;
+                              return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+                            }}
+                            placeholder="ZIP Code"
+                            inputMode="numeric"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 {/* Address */}
@@ -289,7 +292,7 @@ export function Address() {
                     <FormItem>
                       <FormControl>
                         <Input
-                          className="placeholder:text-xs md:placeholder:text-sm"
+                          className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
                           placeholder="Address"
                           {...field}
                         />
@@ -308,7 +311,7 @@ export function Address() {
                       <FormItem>
                         <FormControl>
                           <Input
-                            className="placeholder:text-xs md:placeholder:text-sm"
+                            className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
                             placeholder="Number"
                             {...field}
                           />
@@ -325,7 +328,7 @@ export function Address() {
                       <FormItem>
                         <FormControl>
                           <Input
-                            className="placeholder:text-xs md:placeholder:text-sm"
+                            className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
                             placeholder="Complement"
                             {...field}
                           />
@@ -345,7 +348,7 @@ export function Address() {
                       <FormItem>
                         <FormControl>
                           <Input
-                            className="placeholder:text-xs md:placeholder:text-sm"
+                            className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
                             placeholder="Neighborhood"
                             {...field}
                           />
@@ -362,7 +365,7 @@ export function Address() {
                       <FormItem>
                         <FormControl>
                           <Input
-                            className="placeholder:text-xs md:placeholder:text-sm"
+                            className="text-xs placeholder:text-xs md:text-sm md:placeholder:text-sm"
                             placeholder="City"
                             {...field}
                           />
@@ -378,12 +381,27 @@ export function Address() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input
-                            className="placeholder:text-xs md:placeholder:text-sm"
-                            placeholder="State"
-                            maxLength={2}
-                            {...field}
-                          />
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring h-9 w-full overflow-hidden rounded-md border px-3 py-1 text-xs focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+                              <SelectValue placeholder="State" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                {US_STATES.map((state) => (
+                                  <SelectItem
+                                    key={state.value}
+                                    value={state.value}
+                                  >
+                                    {state.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
