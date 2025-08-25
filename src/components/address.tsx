@@ -4,7 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
+import { toast } from "sonner";
 import z from "zod";
+
+import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -76,6 +79,7 @@ type AddressFormValues = z.input<typeof addressFormSchema>;
 
 export function Address() {
   // Hooks
+  const createShippingAddress = useCreateShippingAddress();
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
@@ -98,8 +102,31 @@ export function Address() {
 
   // Methods
   const onSubmit = async (formData: AddressFormValues) => {
-    console.log("Form submitted:", formData);
-    // TODO: Implement form submission logic
+    createShippingAddress.mutate(
+      {
+        email: formData.email,
+        fullName: formData.fullName,
+        // Action currently supports US and BR; fallback to US if other
+        country: (formData.country ?? "US") === "BR" ? "BR" : "US",
+        phone: formData.phone,
+        zipCode: formData.zipCode,
+        address: formData.address,
+        number: formData.number,
+        complement: formData.complement ?? undefined,
+        neighborhood: formData.neighborhood,
+        city: formData.city,
+        state: formData.state,
+      },
+      {
+        onSuccess: () => {
+          toast.success("New address added successfully");
+        },
+        onError: (error) => {
+          console.error("Error while adding new address", error);
+          toast.error("Error while adding new address");
+        },
+      },
+    );
   };
 
   // Renders
