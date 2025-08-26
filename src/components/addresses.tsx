@@ -7,7 +7,9 @@ import { NumberFormatBase, PatternFormat } from "react-number-format";
 import { toast } from "sonner";
 import z from "zod";
 
+import { shippinAddressesTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
+import { useGetShippingAddresses } from "@/hooks/queries/use-get-shipping-addresses";
 import { isValidUSZip, US_STATES, validatePhone } from "@/utils/address-utils";
 
 import { Button } from "./ui/button";
@@ -68,9 +70,20 @@ const addressFormSchema = z
 
 type AddressFormValues = z.input<typeof addressFormSchema>;
 
-export function Addresses() {
+interface AddressesProps {
+  shippingAddresses: (typeof shippinAddressesTable.$inferSelect)[];
+  defaultShippingAddressId: string | null;
+}
+
+export function Addresses({
+  shippingAddresses,
+  defaultShippingAddressId,
+}: AddressesProps) {
   // Hooks
   const createShippingAddress = useCreateShippingAddress();
+  const { data: addresses, isLoading: isLoadingAddresses } =
+    useGetShippingAddresses({ initialData: shippingAddresses });
+
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
@@ -119,6 +132,8 @@ export function Addresses() {
       },
     );
   };
+
+  console.log("ADDRESSES: ", addresses);
 
   // Renders
   return (
