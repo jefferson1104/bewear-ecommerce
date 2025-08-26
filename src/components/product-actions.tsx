@@ -1,7 +1,6 @@
 "use client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { Loader2Icon } from "lucide-react";
 import { parseAsInteger, useQueryState } from "nuqs";
 
 import { addProductToCart } from "@/actions/add-cart-product";
@@ -69,9 +68,9 @@ export function ProductActions({ productVariantId }: IProductActionProps) {
           size="lg"
           variant="outline"
           disabled={isPending}
+          isLoading={isPending}
           onClick={() => mutate()}
         >
-          {isPending && <Loader2Icon className="mr-1 animate-spin" />}
           Add to cart
         </Button>
 

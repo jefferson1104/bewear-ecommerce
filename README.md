@@ -25,3 +25,7 @@ $ npx @better-auth/cli@1.2.12 generate
 
 
 ```
+
+## DEPLOY
+
+https://www.youtube.com/watch?v=guCJSL8vzfQ&t=2349s

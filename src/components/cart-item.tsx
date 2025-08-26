@@ -128,12 +128,9 @@ export function CartItem({
           size="icon"
           onClick={handleDeleteProductFromCart}
           disabled={isLoading}
+          isLoading={isLoading}
         >
-          {isLoading ? (
-            <Loader2Icon className="mr-1 animate-spin" />
-          ) : (
-            <TrashIcon />
-          )}
+          <TrashIcon />
         </Button>
         <p className="text-sm font-bold">
           {formatCentsToCurrency(productVariantPriceInCents * quantity)}
