@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { Address } from "@/components/address";
+import { Addresses } from "@/components/addresses";
 import { Header } from "@/components/header";
 import { db } from "@/db";
 import { cartsTable } from "@/db/schema";
@@ -33,7 +33,7 @@ export default async function IdentificationPage() {
     <>
       <Header />
       <div className="px-5">
-        <Address />
+        <Addresses />
       </div>
     </>
   );

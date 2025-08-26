@@ -68,7 +68,7 @@ const addressFormSchema = z
 
 type AddressFormValues = z.input<typeof addressFormSchema>;
 
-export function Address() {
+export function Addresses() {
   // Hooks
   const createShippingAddress = useCreateShippingAddress();
   const form = useForm<AddressFormValues>({
