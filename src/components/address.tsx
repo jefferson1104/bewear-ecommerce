@@ -141,6 +141,7 @@ export function Address() {
 
         {selectedAddress && <Separator className="mt-8 mb-8" />}
 
+        {/* Add new address form */}
         {selectedAddress === "add_new" && (
           <div className="flex flex-col gap-4">
             <h3 className="text-sm font-semibold">Add New Address</h3>
