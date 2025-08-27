@@ -86,3 +86,18 @@ export const US_STATES = [
   { value: "WI", label: "Wisconsin" },
   { value: "WY", label: "Wyoming" },
 ];
+
+export const formatAddress = (address: {
+  recipientName: string;
+  street: string;
+  number: string;
+  complement: string | null;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}) => {
+  return `${address.recipientName} • ${address.number} ${address.street},
+    ${address.complement && `, ${address.complement}`}, ${address.neighborhood}
+    , ${address.city}, ${address.state} ${address.zipCode}`;
+};

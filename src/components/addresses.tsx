@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { NumberFormatBase, PatternFormat } from "react-number-format";
@@ -10,7 +11,12 @@ import z from "zod";
 import { shippinAddressesTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useGetShippingAddresses } from "@/hooks/queries/use-get-shipping-addresses";
-import { isValidUSZip, US_STATES, validatePhone } from "@/utils/address-utils";
+import {
+  formatAddress,
+  isValidUSZip,
+  US_STATES,
+  validatePhone,
+} from "@/utils/address-utils";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -32,8 +38,7 @@ const addressFormSchema = z
   .object({
     email: z.email("Invalid email address").trim().min(1, "Email is required"),
     fullName: z.string().trim().min(1, "Full name is required"),
-    // Country and phone will be validated together
-    country: z.enum(["US", "CA", "GB", "BR", "PT"]).default("US"),
+    country: z.enum(["US", "BR"]).default("US"),
     phone: z.string().trim().min(1, "Phone is required"),
     zipCode: z.string().trim().min(5, "ZIP code is required"),
     address: z.string().trim().min(1, "Address is required"),
@@ -81,6 +86,7 @@ export function Addresses({
 }: AddressesProps) {
   // Hooks
   const createShippingAddress = useCreateShippingAddress();
+
   const { data: addresses, isLoading: isLoadingAddresses } =
     useGetShippingAddresses({ initialData: shippingAddresses });
 
@@ -102,7 +108,9 @@ export function Addresses({
   });
 
   // States
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(
+    defaultShippingAddressId || null,
+  );
 
   // Methods
   const onSubmit = async (formData: AddressFormValues) => {
@@ -133,8 +141,6 @@ export function Addresses({
     );
   };
 
-  console.log("ADDRESSES: ", addresses);
-
   // Renders
   return (
     <Card className="mb-8">
@@ -143,22 +149,79 @@ export function Addresses({
       </CardHeader>
 
       <CardContent>
-        <RadioGroup value={selectedAddress} onValueChange={setSelectedAddress}>
-          <Card>
-            <CardContent>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="add_new" id="add_new" />
-                <Label htmlFor="add_new">Add New Address</Label>
+        {/* Loading */}
+        {isLoadingAddresses && (
+          <div className="flex items-center gap-1">
+            <p>Loading addresses...</p>
+            <LoaderCircleIcon className="size-4 animate-spin" />
+          </div>
+        )}
+
+        {/* Options */}
+        {!isLoadingAddresses && (
+          <RadioGroup
+            value={selectedAddress}
+            onValueChange={setSelectedAddress}
+          >
+            {addresses?.length === 0 && (
+              <div className="py-4 text-center">
+                <p className="text-muted-foreground">
+                  You have no saved addresses.
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        </RadioGroup>
+            )}
 
-        {selectedAddress && <Separator className="mt-8 mb-8" />}
+            {addresses?.map((address) => (
+              <Card key={address.id}>
+                <CardContent>
+                  <div className="flex items-start space-x-2">
+                    <RadioGroupItem value={address.id} id={address.id} />
+                    <div className="flex-1">
+                      <Label htmlFor={address.id} className="cursor-pointer">
+                        <div>
+                          <p className="text-sm">{formatAddress(address)}</p>
+                        </div>
+                      </Label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
 
-        {/* Add new address form */}
+            <Card>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="add_new" id="add_new" />
+                  <Label htmlFor="add_new">Add New Address</Label>
+                </div>
+              </CardContent>
+            </Card>
+          </RadioGroup>
+        )}
+
+        {/* Address selected */}
+        {selectedAddress && selectedAddress !== "add_new" && (
+          <div className="mt-4">
+            <Separator className="mt-8 mb-8" />
+
+            <Button
+              // onClick={handleGoToPayment}
+              className="w-full"
+              // disabled={updateCartShippingAddressMutation.isPending}
+            >
+              {/* {updateCartShippingAddressMutation.isPending
+                ? "Processando..."
+                : "Ir para pagamento"} */}
+              Ir para pagamento
+            </Button>
+          </div>
+        )}
+
+        {/* Register new address */}
         {selectedAddress === "add_new" && (
           <div className="flex flex-col gap-4">
+            <Separator className="mt-8 mb-4" />
+
             <h3 className="text-sm font-semibold">Add New Address</h3>
 
             <Form {...form}>
