@@ -92,7 +92,6 @@ export function Addresses({
   const updateShippingAddress = useUpdateShippingAddress();
   const { data: addresses, isLoading: isLoadingAddresses } =
     useGetShippingAddresses({ initialData: shippingAddresses });
-
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
@@ -115,6 +114,10 @@ export function Addresses({
     defaultShippingAddressId || null,
   );
 
+  // Constants
+  const isLoading =
+    createShippingAddress.isPending || updateShippingAddress.isPending;
+
   // Methods
   const handleGoToPayment = async () => {
     if (!selectedAddress || selectedAddress === "add_new") return;
@@ -132,11 +135,10 @@ export function Addresses({
   };
 
   const onSubmit = async (formData: AddressFormValues) => {
-    createShippingAddress.mutate(
-      {
+    try {
+      const newAddress = await createShippingAddress.mutateAsync({
         email: formData.email,
         fullName: formData.fullName,
-        // Action currently supports US and BR; fallback to US if other
         country: (formData.country ?? "US") === "BR" ? "BR" : "US",
         phone: formData.phone,
         zipCode: formData.zipCode,
@@ -146,17 +148,19 @@ export function Addresses({
         neighborhood: formData.neighborhood,
         city: formData.city,
         state: formData.state,
-      },
-      {
-        onSuccess: () => {
-          toast.success("New address added successfully");
-        },
-        onError: (error) => {
-          console.error("Error while adding new address", error);
-          toast.error("Error while adding new address");
-        },
-      },
-    );
+      });
+
+      toast.success("New address added successfully");
+      form.reset();
+      setSelectedAddress(newAddress.id);
+
+      await updateShippingAddress.mutateAsync({
+        shippingAddressId: newAddress.id,
+      });
+    } catch (error) {
+      console.error("Error while adding new address: ", error);
+      toast.error("Error while adding new address");
+    }
   };
 
   // Renders
@@ -225,10 +229,10 @@ export function Addresses({
             <Button
               onClick={handleGoToPayment}
               className="w-full"
-              disabled={updateShippingAddress.isPending}
-              isLoading={updateShippingAddress.isPending}
+              disabled={isLoading}
+              isLoading={isLoading}
             >
-              Go to Payment
+              Go to payment
             </Button>
           </div>
         )}
@@ -505,8 +509,8 @@ export function Addresses({
                 </div>
 
                 {/* Submit Button */}
-                <Button type="submit" className="w-full">
-                  Continue with Payment
+                <Button type="submit" className="w-full" isLoading={isLoading}>
+                  Save address
                 </Button>
               </form>
             </Form>

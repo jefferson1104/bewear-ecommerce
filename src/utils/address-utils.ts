@@ -98,6 +98,5 @@ export const formatAddress = (address: {
   zipCode: string;
 }) => {
   return `${address.recipientName} • ${address.number} ${address.street},
-    ${address.complement && `, ${address.complement}`}, ${address.neighborhood}
-    , ${address.city}, ${address.state} ${address.zipCode}`;
+    ${address.complement ? ` ${address.complement}, ${address.neighborhood},` : `${address.neighborhood},`} ${address.city}, ${address.state} ${address.zipCode}`;
 };
