@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircleIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { NumberFormatBase, PatternFormat } from "react-number-format";
@@ -10,6 +11,7 @@ import z from "zod";
 
 import { shippinAddressesTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
+import { useUpdateShippingAddress } from "@/hooks/mutations/use-update-shipping-address";
 import { useGetShippingAddresses } from "@/hooks/queries/use-get-shipping-addresses";
 import {
   formatAddress,
@@ -85,8 +87,9 @@ export function Addresses({
   defaultShippingAddressId,
 }: AddressesProps) {
   // Hooks
+  const router = useRouter();
   const createShippingAddress = useCreateShippingAddress();
-
+  const updateShippingAddress = useUpdateShippingAddress();
   const { data: addresses, isLoading: isLoadingAddresses } =
     useGetShippingAddresses({ initialData: shippingAddresses });
 
@@ -113,6 +116,21 @@ export function Addresses({
   );
 
   // Methods
+  const handleGoToPayment = async () => {
+    if (!selectedAddress || selectedAddress === "add_new") return;
+
+    try {
+      await updateShippingAddress.mutateAsync({
+        shippingAddressId: selectedAddress,
+      });
+      toast.success("Address updated successfully");
+      router.push("/cart/confirmation");
+    } catch (error) {
+      console.error("Error updating address: ", error);
+      toast.error("Error selecting address. Please try again.");
+    }
+  };
+
   const onSubmit = async (formData: AddressFormValues) => {
     createShippingAddress.mutate(
       {
@@ -205,14 +223,12 @@ export function Addresses({
             <Separator className="mt-8 mb-8" />
 
             <Button
-              // onClick={handleGoToPayment}
+              onClick={handleGoToPayment}
               className="w-full"
-              // disabled={updateCartShippingAddressMutation.isPending}
+              disabled={updateShippingAddress.isPending}
+              isLoading={updateShippingAddress.isPending}
             >
-              {/* {updateCartShippingAddressMutation.isPending
-                ? "Processando..."
-                : "Ir para pagamento"} */}
-              Ir para pagamento
+              Go to Payment
             </Button>
           </div>
         )}
