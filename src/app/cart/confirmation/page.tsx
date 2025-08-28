@@ -4,7 +4,7 @@ export default async function ConfirmationPage() {
   // Renders
   return (
     <>
-      <Header />
+      <Header showBackButton hideCart hideMenu />
 
       <div className="px-5">
         <h1>Order Confirmation</h1>

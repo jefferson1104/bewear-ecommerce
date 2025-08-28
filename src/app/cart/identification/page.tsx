@@ -45,7 +45,7 @@ export default async function IdentificationPage() {
   // Renders
   return (
     <>
-      <Header />
+      <Header hideCart hideMenu showBackButton />
       <div className="px-5">
         <Addresses
           shippingAddresses={shippingAddresses}

@@ -1,8 +1,9 @@
 "use client";
 
-import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
+import { ArrowLeft, LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Cart } from "@/components/cart";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,7 +17,16 @@ import {
 } from "@/components/ui/sheet";
 import { authClient } from "@/lib/auth-client";
 
-export function Header() {
+interface IHeaderProps {
+  hideCart?: boolean;
+  hideMenu?: boolean;
+  showBackButton?: boolean;
+}
+
+export function Header({ hideCart, hideMenu, showBackButton }: IHeaderProps) {
+  // Hooks
+  const router = useRouter();
+
   // Constants
   const { data: session } = authClient.useSession();
 
@@ -28,66 +38,74 @@ export function Header() {
       </Link>
 
       <div className="flex items-center gap-3">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <MenuIcon />
-            </Button>
-          </SheetTrigger>
+        {!hideCart && (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <MenuIcon />
+              </Button>
+            </SheetTrigger>
 
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Menu</SheetTitle>
-            </SheetHeader>
+            <SheetContent>
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
 
-            <div className="px-5">
-              {session?.user ? (
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage
-                        src={session?.user?.image as string | undefined}
-                      />
-                      <AvatarFallback>
-                        {session?.user?.name?.split(" ")?.[0]?.[0]}
-                        {session?.user?.name?.split(" ")?.[1]?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
+              <div className="px-5">
+                {session?.user ? (
+                  <div className="flex justify-between">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarImage
+                          src={session?.user?.image as string | undefined}
+                        />
+                        <AvatarFallback>
+                          {session?.user?.name?.split(" ")?.[0]?.[0]}
+                          {session?.user?.name?.split(" ")?.[1]?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
 
-                    <div>
-                      <h3 className="font-semibold">{session?.user?.name}</h3>
-                      <span className="text-muted-foreground block text-xs">
-                        {session?.user?.email}
-                      </span>
+                      <div>
+                        <h3 className="font-semibold">{session?.user?.name}</h3>
+                        <span className="text-muted-foreground block text-xs">
+                          {session?.user?.email}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => authClient.signOut()}
-                  >
-                    <LogOutIcon />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-2">
-                  <h2>Hello, you are not logged in.</h2>
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold">Sign In</p>
-                    <Button size="icon" asChild variant="outline">
-                      <Link href="/authentication">
-                        <LogInIcon />
-                      </Link>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => authClient.signOut()}
+                    >
+                      <LogOutIcon />
                     </Button>
                   </div>
-                </div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <h2>Hello, you are not logged in.</h2>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold">Sign In</p>
+                      <Button size="icon" asChild variant="outline">
+                        <Link href="/authentication">
+                          <LogInIcon />
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
 
-        <Cart />
+        {!hideMenu && <Cart />}
+
+        {showBackButton && (
+          <Button variant="outline" size="icon" onClick={() => router.back()}>
+            <ArrowLeft />
+          </Button>
+        )}
       </div>
     </header>
   );
