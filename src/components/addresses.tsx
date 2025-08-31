@@ -232,7 +232,7 @@ export function Addresses({
               disabled={isLoading}
               isLoading={isLoading}
             >
-              Confirm identification
+              Complete order
             </Button>
           </div>
         )}

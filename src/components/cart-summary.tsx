@@ -60,23 +60,25 @@ export function CartSummary({
               <Image
                 src={product.imageUrl}
                 alt={product.variantName}
-                width={78}
-                height={78}
+                width={82}
+                height={82}
                 className="rounded-lg"
               />
 
               <div className="flex flex-col gap-1">
                 <p className="text-sm font-semibold">{product.name}</p>
-                <p className="tex-xs text-muted-foreground font-medium">
+                <p className="text-muted-foreground text-xs font-medium">
                   {product.variantName}
                 </p>
+                <p className="text-muted-foreground text-xs font-medium">
+                  {product.quantity}
+                </p>
+                <p className="text-sm font-bold">
+                  {formatCentsToCurrency(
+                    product.priceInCents * product.quantity,
+                  )}
+                </p>
               </div>
-            </div>
-
-            <div className="flex flex-col items-end justify-center gap-1">
-              <p className="text-sm font-bold">
-                {formatCentsToCurrency(product.priceInCents * product.quantity)}
-              </p>
             </div>
           </div>
         ))}

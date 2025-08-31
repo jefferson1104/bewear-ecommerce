@@ -66,7 +66,7 @@ export default async function ConfirmationPage() {
             </Card>
 
             <Button className="w-full rounded-full" size="lg">
-              Go to payment
+              Checkout now
             </Button>
           </CardContent>
         </Card>
