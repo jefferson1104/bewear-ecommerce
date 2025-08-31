@@ -2,9 +2,9 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { CartSummary } from "@/components/cart-summary";
+import { CompleteOrderButton } from "@/components/complete-order-button";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db";
 import { auth } from "@/lib/auth";
@@ -65,9 +65,7 @@ export default async function ConfirmationPage() {
               </CardContent>
             </Card>
 
-            <Button className="w-full rounded-full" size="lg">
-              Checkout now
-            </Button>
+            <CompleteOrderButton />
           </CardContent>
         </Card>
 
