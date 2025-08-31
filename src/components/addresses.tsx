@@ -119,7 +119,7 @@ export function Addresses({
     createShippingAddress.isPending || updateShippingAddress.isPending;
 
   // Methods
-  const handleGoToPayment = async () => {
+  const handleConfirmation = async () => {
     if (!selectedAddress || selectedAddress === "add_new") return;
 
     try {
@@ -227,12 +227,12 @@ export function Addresses({
             <Separator className="mt-8 mb-8" />
 
             <Button
-              onClick={handleGoToPayment}
+              onClick={handleConfirmation}
               className="w-full"
               disabled={isLoading}
               isLoading={isLoading}
             >
-              Go to payment
+              Confirm identification
             </Button>
           </div>
         )}

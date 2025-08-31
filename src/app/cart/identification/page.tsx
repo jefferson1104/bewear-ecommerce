@@ -51,10 +51,10 @@ export default async function IdentificationPage() {
 
   // Renders
   return (
-    <div className="space-y-4">
+    <div>
       <Header hideCart hideMenu showBackButton />
 
-      <div className="mb-12 space-y-4 px-5">
+      <div className="space-y-4 px-5">
         <Addresses
           shippingAddresses={shippingAddresses}
           defaultShippingAddressId={cart.shippingAddress?.id || null}
@@ -73,7 +73,9 @@ export default async function IdentificationPage() {
         />
       </div>
 
-      <Footer />
+      <div className="mt-12">
+        <Footer />
+      </div>
     </div>
   );
 }
