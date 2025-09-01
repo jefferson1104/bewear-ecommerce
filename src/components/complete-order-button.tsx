@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -12,9 +13,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "./ui/dialog";
 
 export function CompleteOrderButton() {
@@ -22,14 +21,14 @@ export function CompleteOrderButton() {
   const completeOrderMutation = useCompleteOrder();
 
   // State
-  const [isDialogOpen, setIsDialogOpen] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Methods
   const handleCompleteOrder = async () => {
     try {
       await completeOrderMutation.mutateAsync();
 
-      toast.success("Order completed successfully");
+      setIsDialogOpen(true);
     } catch (error) {
       console.error("Error completing order: ", error);
       toast.error("Error completing order. Please try again.");
@@ -69,8 +68,13 @@ export function CompleteOrderButton() {
             <Button className="rounded-full" size="lg">
               My Orders
             </Button>
-            <Button variant="outline" className="rounded-full" size="lg">
-              Continue Shopping
+            <Button
+              variant="outline"
+              className="rounded-full"
+              size="lg"
+              asChild
+            >
+              <Link href="/">Continue Shopping</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
